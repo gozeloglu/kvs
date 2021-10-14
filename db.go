@@ -64,3 +64,8 @@ func open(dbName string) (*Kvs, error) {
 		dbFile: dbFile,
 	}, nil
 }
+
+// Close closes the file.
+func (k *Kvs) Close() error {
+	return k.dbFile.Close()
+}

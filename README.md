@@ -16,10 +16,10 @@ package main
 import "github.com/gozeloglu/kvs"
 
 func main() {
-    kvs, err := db.Open("users")
+    db, err := kvs.Open("users")
     if err != nil {
         log.Fatalf(err.Error())
     }
-    defer kvs.DbFile.Close()
+    defer db.Close()
 }
 ```

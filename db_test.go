@@ -53,3 +53,23 @@ func TestOpenExistsFile(t *testing.T) {
 	}
 	t.Logf("TmpDb removed.")
 }
+
+func TestKvs_Close(t *testing.T) {
+	db, err := Open(t.Name())
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	t.Logf("DB created.")
+
+	err = db.Close()
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	t.Logf("DB closed.")
+
+	err = os.Remove(db.dir)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	t.Logf("File removed.")
+}
