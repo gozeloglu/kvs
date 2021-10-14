@@ -21,10 +21,10 @@ const (
 	fileExtension = ".kvs"
 )
 
-// New creates data file for newly creating database. If the database file is
+// Open creates data file for newly creating database. If the database file is
 // already exists, it returns error without creating anything. name indicates
 // database name.
-func New(name string) (*Kvs, error) {
+func Open(name string) (*Kvs, error) {
 	fullPath := baseDir + name + fileExtension
 
 	// Check database's base directory
@@ -46,6 +46,21 @@ func New(name string) (*Kvs, error) {
 			Dir:    baseDir + name + fileExtension,
 			DbFile: dbFile,
 		}, nil
+	} else {
+		return open(name)
 	}
-	return nil, fmt.Errorf("this database already exists")
+}
+
+// open opens the named database for file operations.
+func open(dbName string) (*Kvs, error) {
+	fullPath := baseDir + dbName + fileExtension
+	dbFile, err := os.Open(fullPath)
+	if err != nil {
+		return nil, err
+	}
+	return &Kvs{
+		Name:   dbName,
+		Dir:    fullPath,
+		DbFile: dbFile,
+	}, nil
 }

@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-func TestNew(t *testing.T) {
-	tmpDb, err := New(t.Name())
+func TestOpen(t *testing.T) {
+	tmpDb, err := Open(t.Name())
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -24,8 +24,8 @@ func TestNew(t *testing.T) {
 	t.Logf("TmpDb removed.")
 }
 
-func TestNewExistsFile(t *testing.T) {
-	tmpDb, err := New(t.Name())
+func TestOpenExistsFile(t *testing.T) {
+	tmpDb, err := Open(t.Name())
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -38,11 +38,14 @@ func TestNewExistsFile(t *testing.T) {
 	}
 	t.Logf("TmpDb created: %s", t.Name())
 
-	tmpDb2, err := New(t.Name())
-	if err == nil || tmpDb2 != nil {
+	tmpDb2, err := Open(t.Name())
+	if err != nil {
 		t.Fatalf("It should not be nil.")
 	}
-	t.Logf(err.Error())
+	if tmpDb2.Name != t.Name() {
+		t.Fatalf("Db name is wrong: %s", tmpDb2.Name)
+	}
+	tmpDb2.DbFile.Close()
 
 	err = os.Remove(tmpDb.Dir)
 	if err != nil {
