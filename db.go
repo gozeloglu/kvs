@@ -18,7 +18,7 @@ type Kvs struct {
 
 const (
 	baseDir       = "/tmp/kvs/"
-	fileExtension = ".db"
+	fileExtension = ".kvs"
 )
 
 // New creates data file for newly creating database. If the database file is
