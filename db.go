@@ -6,14 +6,14 @@ import (
 )
 
 type Kvs struct {
-	// Name is database name.
-	Name string
+	// name is database name.
+	name string
 
 	// dir is directory of the data files.
-	Dir string
+	dir string
 
-	// DbFile is a File object that handles File operations.
-	DbFile *os.File
+	// dbFile is a File object that handles File operations.
+	dbFile *os.File
 }
 
 const (
@@ -42,9 +42,9 @@ func Open(name string) (*Kvs, error) {
 			return nil, fmt.Errorf("database couldn't created: %s", err.Error())
 		}
 		return &Kvs{
-			Name:   name + fileExtension,
-			Dir:    baseDir + name + fileExtension,
-			DbFile: dbFile,
+			name:   name + fileExtension,
+			dir:    baseDir + name + fileExtension,
+			dbFile: dbFile,
 		}, nil
 	} else {
 		return open(name)
@@ -59,8 +59,8 @@ func open(dbName string) (*Kvs, error) {
 		return nil, err
 	}
 	return &Kvs{
-		Name:   dbName,
-		Dir:    fullPath,
-		DbFile: dbFile,
+		name:   dbName,
+		dir:    fullPath,
+		dbFile: dbFile,
 	}, nil
 }

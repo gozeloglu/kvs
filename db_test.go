@@ -13,11 +13,11 @@ func TestOpen(t *testing.T) {
 	if _, err = os.Stat(baseDir + t.Name() + fileExtension); os.IsNotExist(err) {
 		t.Fatalf("Directory was not created. %s", err.Error())
 	}
-	err = tmpDb.DbFile.Close()
+	err = tmpDb.dbFile.Close()
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
-	err = os.Remove(tmpDb.Dir)
+	err = os.Remove(tmpDb.dir)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -32,7 +32,7 @@ func TestOpenExistsFile(t *testing.T) {
 	if _, err = os.Stat(baseDir + t.Name() + fileExtension); os.IsNotExist(err) {
 		t.Fatalf("Directory was not created. %s", err.Error())
 	}
-	err = tmpDb.DbFile.Close()
+	err = tmpDb.dbFile.Close()
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -42,12 +42,12 @@ func TestOpenExistsFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("It should not be nil.")
 	}
-	if tmpDb2.Name != t.Name() {
-		t.Fatalf("Db name is wrong: %s", tmpDb2.Name)
+	if tmpDb2.name != t.Name() {
+		t.Fatalf("Db name is wrong: %s", tmpDb2.name)
 	}
-	tmpDb2.DbFile.Close()
+	tmpDb2.dbFile.Close()
 
-	err = os.Remove(tmpDb.Dir)
+	err = os.Remove(tmpDb.dir)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
