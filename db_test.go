@@ -95,4 +95,43 @@ func TestWrite(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 	t.Logf("Data written to file.")
+	db.Close()
+	err = os.RemoveAll(db.dir)
+	if err != nil {
+		t.Fatalf("Test file could not removed. %s", err.Error())
+	}
+	t.Logf("Removed test file.")
+}
+
+func TestLoad(t *testing.T) {
+	db, err := Open(t.Name())
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	t.Logf("DB created.")
+	db.kv["test"] = t.Name()
+
+	err = db.write()
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	t.Logf("Data written to file.")
+
+	err = db.load()
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	t.Logf("DB loaded to memory.")
+
+	if db.kv["test"] != t.Name() {
+		t.Fatalf("wrong value. test=%s", db.kv["test"])
+	}
+	t.Logf("test=%s", db.kv["test"])
+
+	err = os.RemoveAll(db.dir)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	t.Logf("Removed test file.")
+
 }

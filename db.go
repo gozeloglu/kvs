@@ -50,10 +50,12 @@ func Open(name string) (*Kvs, error) {
 		if err != nil {
 			return nil, fmt.Errorf("database couldn't created: %s", err.Error())
 		}
+		m := make(map[string]string)
 		return &Kvs{
 			name:   name + fileExtension,
 			dir:    baseDir + name + fileExtension,
 			dbFile: dbFile,
+			kv:     m,
 		}, nil
 	} else {
 		return open(name)
@@ -62,6 +64,9 @@ func Open(name string) (*Kvs, error) {
 
 // open opens the named database for file operations.
 func open(dbName string) (*Kvs, error) {
+	mu := sync.Mutex{}
+	mu.Lock()
+	defer mu.Unlock()
 	fullPath := baseDir + dbName + fileExtension
 	dbFile, err := os.OpenFile(fullPath, os.O_RDONLY, 0777)
 	if err != nil {
@@ -118,6 +123,10 @@ func (k *Kvs) write() error {
 	d := ""
 	for key, val := range k.kv {
 		d += fmt.Sprintf("%s=%s\n", key, val)
+	}
+	err := k.dbFile.Close()
+	if err != nil {
+		return err
 	}
 	return ioutil.WriteFile(k.dir, []byte(d), 0666)
 }
