@@ -34,10 +34,14 @@ func main() {
     jack := db.Get("jack")
     fmt.Println(jack)
     
-    err = db.Close()
+    err = db.Close() // Call while closing the database.
     if err != nil {
         log.Fatalf(err.Error())
     }
 }
 
 ```
+
+## LICENSE
+
+[MIT](https://github.com/gozeloglu/kvs/blob/main/LICENSE)
