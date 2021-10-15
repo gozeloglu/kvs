@@ -73,3 +73,26 @@ func TestKvs_Close(t *testing.T) {
 	}
 	t.Logf("File removed.")
 }
+
+func TestWrite(t *testing.T) {
+	db, err := Open(t.Name())
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	t.Logf("DB created.")
+
+	err = db.load()
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	t.Logf("DB loaded.")
+
+	db.kv["a"] = "bar"
+	db.kv["foo"] = "bar"
+
+	err = db.write()
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	t.Logf("Data written to file.")
+}
