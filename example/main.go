@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	db, err := kvs.Open("users")
+	db, err := kvs.Open(":1234", "users")
 	if err != nil {
 		log.Fatalf(err.Error())
 	}

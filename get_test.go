@@ -6,7 +6,7 @@ import (
 )
 
 func TestKvs_GetEmpty(t *testing.T) {
-	db, err := Open(t.Name())
+	db, err := open(t.Name())
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -32,7 +32,7 @@ func TestKvs_GetEmpty(t *testing.T) {
 }
 
 func TestKvs_Get(t *testing.T) {
-	db, err := Open(t.Name())
+	db, err := open(t.Name())
 	if err != nil {
 		t.Fatalf(err.Error())
 	}

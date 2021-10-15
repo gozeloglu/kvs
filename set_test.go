@@ -6,7 +6,7 @@ import (
 )
 
 func TestKvs_Set(t *testing.T) {
-	db, err := Open(t.Name())
+	db, err := open(t.Name())
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
