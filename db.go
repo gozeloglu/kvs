@@ -3,9 +3,11 @@ package kvs
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"strings"
 	"sync"
+	"time"
 )
 
 type Kvs struct {
@@ -26,6 +28,9 @@ type Kvs struct {
 
 	// addr is the server address.
 	addr string
+
+	// duration stands for the time interval to save data into file periodically.
+	duration time.Duration
 }
 
 const (
@@ -36,7 +41,7 @@ const (
 // open creates data file for newly creating database. If the database file is
 // already exists, it returns error without creating anything. name indicates
 // database name.
-func open(name string, addr string) (*Kvs, error) {
+func open(name string, addr string, duration time.Duration) (*Kvs, error) {
 	fullPath := baseDir + name + fileExtension
 
 	// Check database's base directory
@@ -54,22 +59,58 @@ func open(name string, addr string) (*Kvs, error) {
 			return nil, fmt.Errorf("database couldn't created: %s", err.Error())
 		}
 		m := make(map[string]string)
-		return &Kvs{
-			name:   name + fileExtension,
-			dir:    baseDir + name + fileExtension,
-			dbFile: dbFile,
-			kv:     m,
-			mu:     sync.Mutex{},
-			addr:   addr,
-		}, nil
+		k := &Kvs{
+			name:     name + fileExtension,
+			dir:      baseDir + name + fileExtension,
+			dbFile:   dbFile,
+			kv:       m,
+			mu:       sync.Mutex{},
+			addr:     addr,
+			duration: duration,
+		}
+
+		ticker := time.NewTicker(duration)
+		go func() {
+			for {
+				select {
+				case t := <-ticker.C:
+					err := k.write()
+					if err != nil {
+						log.Println("Writing file failed at", t.Local())
+					} else {
+						log.Println("Data saved on the file at", t.Local())
+					}
+				}
+			}
+		}()
+		return k, nil
 	} else {
-		return openAndLoad(name, addr)
+		k, err := openAndLoad(name, addr, duration)
+		if err != nil {
+			return nil, err
+		}
+
+		ticker := time.NewTicker(duration)
+		go func() {
+			for {
+				select {
+				case t := <-ticker.C:
+					err := k.write()
+					if err != nil {
+						log.Println("Writing file failed at", t.Local())
+					} else {
+						log.Println("Data saved on the file at", t.Local())
+					}
+				}
+			}
+		}()
+		return k, nil
 	}
 }
 
 // openAndLoad opens the named database file for file operations. Also, loads
 // the database file into map to in-memory operations.
-func openAndLoad(dbName string, addr string) (*Kvs, error) {
+func openAndLoad(dbName string, addr string, duration time.Duration) (*Kvs, error) {
 	mu := sync.Mutex{}
 	mu.Lock()
 	defer mu.Unlock()
@@ -79,11 +120,12 @@ func openAndLoad(dbName string, addr string) (*Kvs, error) {
 		return nil, err
 	}
 	k := &Kvs{
-		name:   dbName,
-		dir:    fullPath,
-		dbFile: dbFile,
-		mu:     sync.Mutex{},
-		addr:   addr,
+		name:     dbName,
+		dir:      fullPath,
+		dbFile:   dbFile,
+		mu:       sync.Mutex{},
+		addr:     addr,
+		duration: duration,
 	}
 	err = k.load()
 	if err != nil {
@@ -126,13 +168,10 @@ func (k *Kvs) load() error {
 
 // write saves data into file. It writes the data in map to the file.
 func (k *Kvs) write() error {
+	defer k.dbFile.Close()
 	d := ""
 	for key, val := range k.kv {
 		d += fmt.Sprintf("%s=%s\n", key, val)
-	}
-	err := k.dbFile.Close()
-	if err != nil {
-		return err
 	}
 	return ioutil.WriteFile(k.dir, []byte(d), 0666)
 }

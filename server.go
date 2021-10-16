@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type KeyValue struct {
@@ -32,15 +33,18 @@ const (
 // Create creates database and Kvs object. It creates database and returns Kvs
 // object. If HTTP address is empty, localhost and default port is used.
 // In contrast, dbName name needs to be specified. If it is not specified, it
-// returns error and the database is not created.
-func Create(addr string, dbName string) (*Kvs, error) {
+// returns error and the database is not created. Kvs saves the data inside the
+// map to the file periodically. User needs to specify the time interval as
+// duration. For example, if 2*time.Minute is passed to duration parameter,
+// the data that stores in memory, map, saves to the file.
+func Create(addr string, dbName string, duration time.Duration) (*Kvs, error) {
 	if dbName == "" {
 		return nil, fmt.Errorf("empty database name is not valid")
 	}
 	if addr == "" {
 		addr = "localhost:1234"
 	}
-	return open(dbName, addr)
+	return open(dbName, addr, duration)
 }
 
 // Open creates an HTTP connection. HTTP connection listens HTTP  requests from
@@ -55,8 +59,6 @@ func (k *Kvs) Open() {
 
 // set is the /set API endpoint for setting a key-value pair.
 func (k *Kvs) set(w http.ResponseWriter, r *http.Request) {
-	k.mu.Lock()
-	defer k.mu.Unlock()
 	if r.Method != http.MethodPost {
 		err := fmt.Sprintf("Wrong HTTP request. You need to send POST request.")
 		log.Printf(err)
@@ -80,10 +82,13 @@ func (k *Kvs) set(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	k.mu.Lock()
 	for i := 0; i < len(keyVal.Data); i++ {
 		key, val := keyVal.Data[i].Key, keyVal.Data[i].Value
-		k.kv[key] = val
+		k.Set(key, val)
 	}
+	k.mu.Unlock()
+
 	data := Response{
 		Result: "OK",
 	}
@@ -101,9 +106,6 @@ func (k *Kvs) set(w http.ResponseWriter, r *http.Request) {
 
 // get returns the value of the key.
 func (k *Kvs) get(w http.ResponseWriter, r *http.Request) {
-	k.mu.Lock()
-	defer k.mu.Unlock()
-
 	if r.Method != http.MethodGet {
 		err := fmt.Sprintf("Wrong HTTP request. You need to send GET request.")
 		log.Printf(err)
@@ -118,8 +120,11 @@ func (k *Kvs) get(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err, http.StatusBadRequest)
 		return
 	}
+
+	k.mu.Lock()
 	key := u[len(u)-1]
 	value := k.Get(key)
+	k.mu.Unlock()
 
 	resp := Response{
 		Key:    key,
@@ -138,9 +143,8 @@ func (k *Kvs) get(w http.ResponseWriter, r *http.Request) {
 	log.Printf("%s=%s", key, value)
 }
 
+// save writes the data from map to file.
 func (k *Kvs) save(w http.ResponseWriter, r *http.Request) {
-	k.mu.Lock()
-	defer k.mu.Unlock()
 	if r.Method != http.MethodPut {
 		err := fmt.Sprintf("Wrong HTTP request. You need to send PUT request.")
 		log.Printf(err)
@@ -148,7 +152,9 @@ func (k *Kvs) save(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	k.mu.Lock()
 	err := k.write()
+	k.mu.Unlock()
 	if err != nil {
 		log.Printf(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)

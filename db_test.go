@@ -3,10 +3,11 @@ package kvs
 import (
 	"os"
 	"testing"
+	"time"
 )
 
 func TestOpen(t *testing.T) {
-	tmpDb, err := open(t.Name(), "")
+	tmpDb, err := open(t.Name(), "", 2*time.Minute)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -25,7 +26,7 @@ func TestOpen(t *testing.T) {
 }
 
 func TestOpenExistsFile(t *testing.T) {
-	tmpDb, err := open(t.Name(), "")
+	tmpDb, err := open(t.Name(), "", 2*time.Minute)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -38,7 +39,7 @@ func TestOpenExistsFile(t *testing.T) {
 	}
 	t.Logf("TmpDb created: %s", t.Name())
 
-	tmpDb2, err := open(t.Name(), "")
+	tmpDb2, err := open(t.Name(), "", 2*time.Minute)
 	if err != nil {
 		t.Fatalf("It should not be nil.")
 	}
@@ -55,7 +56,7 @@ func TestOpenExistsFile(t *testing.T) {
 }
 
 func TestKvs_Close(t *testing.T) {
-	db, err := open(t.Name(), "")
+	db, err := open(t.Name(), "", 2*time.Minute)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -75,7 +76,7 @@ func TestKvs_Close(t *testing.T) {
 }
 
 func TestWrite(t *testing.T) {
-	db, err := open(t.Name(), "")
+	db, err := open(t.Name(), "", 2*time.Minute)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -104,7 +105,7 @@ func TestWrite(t *testing.T) {
 }
 
 func TestLoad(t *testing.T) {
-	db, err := open(t.Name(), "")
+	db, err := open(t.Name(), "", 2*time.Minute)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}

@@ -3,10 +3,11 @@ package kvs
 import (
 	"os"
 	"testing"
+	"time"
 )
 
 func TestKvs_GetEmpty(t *testing.T) {
-	db, err := open(t.Name(), "")
+	db, err := open(t.Name(), "", 2*time.Minute)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -32,7 +33,7 @@ func TestKvs_GetEmpty(t *testing.T) {
 }
 
 func TestKvs_Get(t *testing.T) {
-	db, err := open(t.Name(), "")
+	db, err := open(t.Name(), "", 2*time.Minute)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
