@@ -1,4 +1,4 @@
-# kvs  ![LICENSE](https://img.shields.io/badge/license-MIT-green)
+# kvs [![Version](https://img.shields.io/badge/Version-v0.2.3-yellowgreen)](https://github.com/gozeloglu/kvs/releases/tag/v0.2.3)  [![API Doc](https://img.shields.io/badge/-API%20Doc-orange)](https://github.com/gozeloglu/kvs/wiki/API-Documentation)  ![LICENSE](https://img.shields.io/badge/license-MIT-green) 
 
 
 ## Installation
