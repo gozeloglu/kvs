@@ -62,6 +62,9 @@ func (k *Kvs) Open() {
 
 // set is the /set API endpoint for setting a key-value pair.
 func (k *Kvs) set(w http.ResponseWriter, r *http.Request) {
+	log.Printf("HTTP method: %s", r.Method)
+	log.Printf("Endpoint: %s", r.URL)
+	log.Printf("Request header: %s", r.Header)
 	if r.Method != http.MethodPost {
 		err := fmt.Sprintf("Wrong HTTP request. You need to send POST request.")
 		log.Printf(err)
@@ -76,6 +79,7 @@ func (k *Kvs) set(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
+	log.Printf("Body read.")
 
 	var keyVal *KeyValue
 	err = json.Unmarshal(body, &keyVal)
@@ -84,6 +88,7 @@ func (k *Kvs) set(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	log.Printf("Body unmarshalled to KeyVal struct type.")
 
 	k.mu.Lock()
 	for i := 0; i < len(keyVal.Data); i++ {
@@ -91,6 +96,7 @@ func (k *Kvs) set(w http.ResponseWriter, r *http.Request) {
 		k.Set(key, val)
 	}
 	k.mu.Unlock()
+	log.Printf("Save key-value pair to memory.")
 
 	data := Response{
 		Result: "OK",
@@ -103,12 +109,19 @@ func (k *Kvs) set(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set(headerContent, contentValue)
 	w.WriteHeader(http.StatusOK)
-	w.Write(j)
-	log.Printf("Key-value pair is set.")
+	_, err = w.Write(j)
+	if err != nil {
+		return
+	}
+	log.Printf("Status code: %d", http.StatusOK)
+	log.Printf("Response header: %s", w.Header().Get(headerContent))
 }
 
 // get returns the value of the key.
 func (k *Kvs) get(w http.ResponseWriter, r *http.Request) {
+	log.Printf("HTTP Method: %s", r.Method)
+	log.Printf("Endpoint: %s", r.URL)
+	log.Printf("Request Header: %s", r.Header)
 	if r.Method != http.MethodGet {
 		err := fmt.Sprintf("Wrong HTTP request. You need to send GET request.")
 		log.Printf(err)
@@ -123,6 +136,7 @@ func (k *Kvs) get(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err, http.StatusBadRequest)
 		return
 	}
+	log.Printf("URL parsed.")
 
 	k.mu.Lock()
 	key := u[len(u)-1]
@@ -140,14 +154,24 @@ func (k *Kvs) get(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	log.Printf("Response body marshalled.")
+
 	w.Header().Set(headerContent, contentValue)
 	w.WriteHeader(http.StatusOK)
-	w.Write(j)
+	_, err = w.Write(j)
+	if err != nil {
+		return
+	}
 	log.Printf("%s=%s", key, value)
+	log.Printf("Status code: %d", http.StatusOK)
+	log.Printf("Response header: %s", w.Header().Get(headerContent))
 }
 
 // save writes the data from map to file.
 func (k *Kvs) save(w http.ResponseWriter, r *http.Request) {
+	log.Printf("HTTP method: %s", r.Method)
+	log.Printf("Endpoint: %s", r.URL)
+	log.Printf("Request header: %s", r.Header)
 	if r.Method != http.MethodPut {
 		err := fmt.Sprintf("Wrong HTTP request. You need to send PUT request.")
 		log.Printf(err)
@@ -163,6 +187,7 @@ func (k *Kvs) save(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	log.Printf("Data saved to database file.")
 
 	resp := Response{
 		Result: "Saved",
@@ -173,8 +198,14 @@ func (k *Kvs) save(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	log.Printf("Response body marshalled.")
+
 	w.Header().Set(headerContent, contentValue)
 	w.WriteHeader(http.StatusOK)
-	w.Write(j)
-	log.Printf("Saved.")
+	_, err = w.Write(j)
+	if err != nil {
+		return
+	}
+	log.Printf("Status code: %d", http.StatusOK)
+	log.Printf("Response header: %s", w.Header().Get(headerContent))
 }
