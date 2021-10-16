@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type KeyValue struct {
@@ -22,6 +23,11 @@ type Response struct {
 	Value  string `json:"value"`
 	Result string `json:"result"`
 }
+
+const (
+	headerContent = "Content-Type"
+	contentValue  = "application/json"
+)
 
 // Create creates database and Kvs object. It creates database and returns Kvs
 // object. If HTTP address is empty, localhost and default port is used.
@@ -42,7 +48,7 @@ func Create(addr string, dbName string) (*Kvs, error) {
 func (k *Kvs) Open() {
 	log.Printf("Kvs server running on %s...", k.addr)
 	http.HandleFunc("/set", k.set)
-	http.HandleFunc("/get", get)
+	http.HandleFunc("/get/", k.get)
 	log.Fatal(http.ListenAndServe(k.addr, nil))
 }
 
@@ -86,12 +92,47 @@ func (k *Kvs) set(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContent, contentValue)
 	w.WriteHeader(http.StatusOK)
 	w.Write(j)
 	log.Printf("Key-value pair is set.")
 }
 
-func get(w http.ResponseWriter, r *http.Request) {
-	// TODO Handle get operation.
+// get returns the value of the key.
+func (k *Kvs) get(w http.ResponseWriter, r *http.Request) {
+	k.mu.Lock()
+	defer k.mu.Unlock()
+
+	if r.Method != http.MethodGet {
+		err := fmt.Sprintf("Wrong HTTP request. You need to send GET request.")
+		log.Printf(err)
+		http.Error(w, err, http.StatusBadRequest)
+		return
+	}
+
+	u := strings.Split(r.URL.String(), "/")
+	if u[len(u)-1] == "" && u[len(u)-2] == "get" {
+		err := fmt.Sprintf("Key is missing.")
+		log.Printf(err)
+		http.Error(w, err, http.StatusBadRequest)
+		return
+	}
+	key := u[len(u)-1]
+	value := k.Get(key)
+
+	resp := Response{
+		Key:    key,
+		Value:  value,
+		Result: "OK",
+	}
+	j, err := json.Marshal(resp)
+	if err != nil {
+		log.Printf(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set(headerContent, contentValue)
+	w.WriteHeader(http.StatusOK)
+	w.Write(j)
+	log.Printf("%s=%s", key, value)
 }
