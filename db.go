@@ -23,6 +23,9 @@ type Kvs struct {
 
 	// mu is mutex for avoiding conflicts.
 	mu sync.Mutex
+
+	// addr is the server address.
+	addr string
 }
 
 const (
@@ -33,7 +36,7 @@ const (
 // open creates data file for newly creating database. If the database file is
 // already exists, it returns error without creating anything. name indicates
 // database name.
-func open(name string) (*Kvs, error) {
+func open(name string, addr string) (*Kvs, error) {
 	fullPath := baseDir + name + fileExtension
 
 	// Check database's base directory
@@ -56,15 +59,17 @@ func open(name string) (*Kvs, error) {
 			dir:    baseDir + name + fileExtension,
 			dbFile: dbFile,
 			kv:     m,
+			mu:     sync.Mutex{},
+			addr:   addr,
 		}, nil
 	} else {
-		return openAndLoad(name)
+		return openAndLoad(name, addr)
 	}
 }
 
 // openAndLoad opens the named database file for file operations. Also, loads
 // the database file into map to in-memory operations.
-func openAndLoad(dbName string) (*Kvs, error) {
+func openAndLoad(dbName string, addr string) (*Kvs, error) {
 	mu := sync.Mutex{}
 	mu.Lock()
 	defer mu.Unlock()
@@ -77,6 +82,8 @@ func openAndLoad(dbName string) (*Kvs, error) {
 		name:   dbName,
 		dir:    fullPath,
 		dbFile: dbFile,
+		mu:     sync.Mutex{},
+		addr:   addr,
 	}
 	err = k.load()
 	if err != nil {

@@ -10,17 +10,19 @@ go get github.com/gozeloglu/kvs
 
 ## Example
 
+If you want to use in your code as a package, you can call `Get` and `Set` methods directly.
+
 ```go
 package main
 
 import (
-	"fmt"
-	"github.com/gozeloglu/kvs"
-	"log"
+    "fmt"
+    "github.com/gozeloglu/kvs"
+    "log"
 )
 
 func main() {
-    db, err := kvs.Open(":1234", "users")
+    db, err := kvs.Open("", "users")
     if err != nil {
         log.Fatalf(err.Error())
     }
@@ -38,6 +40,27 @@ func main() {
     if err != nil {
         log.Fatalf(err.Error())
     }
+}
+
+```
+
+If you want to use as a server, you can just call two different functions. It creates endpoints for you.
+
+```go
+package main
+
+import (
+    "github.com/gozeloglu/kvs"
+    "log"
+)
+
+func main() {
+    db, err := kvs.Create(":1234", "users")
+    if err != nil {
+        log.Fatalf(err.Error())
+    }
+    log.Printf("DB Created.")
+    db.Open()
 }
 
 ```
