@@ -49,6 +49,7 @@ func (k *Kvs) Open() {
 	log.Printf("Kvs server running on %s...", k.addr)
 	http.HandleFunc("/set", k.set)
 	http.HandleFunc("/get/", k.get)
+	http.HandleFunc("/save", k.save)
 	log.Fatal(http.ListenAndServe(k.addr, nil))
 }
 
@@ -135,4 +136,36 @@ func (k *Kvs) get(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(j)
 	log.Printf("%s=%s", key, value)
+}
+
+func (k *Kvs) save(w http.ResponseWriter, r *http.Request) {
+	k.mu.Lock()
+	defer k.mu.Unlock()
+	if r.Method != http.MethodPut {
+		err := fmt.Sprintf("Wrong HTTP request. You need to send PUT request.")
+		log.Printf(err)
+		http.Error(w, err, http.StatusBadRequest)
+		return
+	}
+
+	err := k.write()
+	if err != nil {
+		log.Printf(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resp := Response{
+		Result: "Saved",
+	}
+	j, err := json.Marshal(resp)
+	if err != nil {
+		log.Printf(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set(headerContent, contentValue)
+	w.WriteHeader(http.StatusOK)
+	w.Write(j)
+	log.Printf("Saved.")
 }

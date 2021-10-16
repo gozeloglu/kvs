@@ -126,8 +126,6 @@ func (k *Kvs) load() error {
 
 // write saves data into file. It writes the data in map to the file.
 func (k *Kvs) write() error {
-	k.mu.Lock()
-	defer k.mu.Unlock()
 	d := ""
 	for key, val := range k.kv {
 		d += fmt.Sprintf("%s=%s\n", key, val)
