@@ -33,6 +33,15 @@ You can call endpoints like this:
 
 	http://localhost:1234/save	--> PUT
 
+With /set endpoint, you can add key-value pair(s) in memory, map. Multiple
+key-value pairs are allowed in "data" array.
+
+With /get/<key> endpoint, you can get the value of <key>. It returns a JSON
+object that stores key, value, and result.
+
+With /save endpoint, you can save the data that stores in memory to the disk.
+It returns result message.
+
 Default port is assigned as :1234 for this server. Actually, it is not used for
 package usage, only is used for server usage.
 

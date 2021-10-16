@@ -10,7 +10,9 @@ import (
 	"time"
 )
 
+// Kvs keeps the essential variables.
 type Kvs struct {
+
 	// name is database name.
 	name string
 
@@ -26,8 +28,8 @@ type Kvs struct {
 	// mu is mutex for avoiding conflicts.
 	mu sync.Mutex
 
-	// addr is the server address.
-	addr string
+	// Addr is the server address.
+	Addr string
 
 	// duration stands for the time interval to save data into file periodically.
 	duration time.Duration
@@ -65,7 +67,7 @@ func open(name string, addr string, duration time.Duration) (*Kvs, error) {
 			dbFile:   dbFile,
 			kv:       m,
 			mu:       sync.Mutex{},
-			addr:     addr,
+			Addr:     addr,
 			duration: duration,
 		}
 
@@ -124,7 +126,7 @@ func openAndLoad(dbName string, addr string, duration time.Duration) (*Kvs, erro
 		dir:      fullPath,
 		dbFile:   dbFile,
 		mu:       sync.Mutex{},
-		addr:     addr,
+		Addr:     addr,
 		duration: duration,
 	}
 	err = k.load()

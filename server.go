@@ -10,15 +10,18 @@ import (
 	"time"
 )
 
+// KeyValue is used for unmarshalling JSON object in POST request.
 type KeyValue struct {
 	Data []Data `json:"data"`
 }
 
+// Data is the element of array. It keeps Key and Value.
 type Data struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
 }
 
+// Response is struct type for JSON response body. It is used for get and save.
 type Response struct {
 	Key    string `json:"key"`
 	Value  string `json:"value"`
@@ -50,11 +53,11 @@ func Create(addr string, dbName string, duration time.Duration) (*Kvs, error) {
 // Open creates an HTTP connection. HTTP connection listens HTTP  requests from
 // client. Create function needs to be called before calling Open function.
 func (k *Kvs) Open() {
-	log.Printf("Kvs server running on %s...", k.addr)
+	log.Printf("Kvs server running on %s...", k.Addr)
 	http.HandleFunc("/set", k.set)
 	http.HandleFunc("/get/", k.get)
 	http.HandleFunc("/save", k.save)
-	log.Fatal(http.ListenAndServe(k.addr, nil))
+	log.Fatal(http.ListenAndServe(k.Addr, nil))
 }
 
 // set is the /set API endpoint for setting a key-value pair.

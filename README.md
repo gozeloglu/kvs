@@ -1,4 +1,5 @@
-# kvs
+# kvs  ![LICENSE](https://img.shields.io/badge/license-MIT-green)
+
 
 ## Installation
 
