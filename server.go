@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"sync"
 )
 
 type KeyValue struct {
@@ -23,8 +22,6 @@ type Response struct {
 	Value  string `json:"value"`
 	Result string `json:"result"`
 }
-
-var mutex = &sync.Mutex{}
 
 // Create creates database and Kvs object. It creates database and returns Kvs
 // object. If HTTP address is empty, localhost and default port is used.
@@ -51,8 +48,8 @@ func (k *Kvs) Open() {
 
 // set is the /set API endpoint for setting a key-value pair.
 func (k *Kvs) set(w http.ResponseWriter, r *http.Request) {
-	mutex.Lock()
-	defer mutex.Unlock()
+	k.mu.Lock()
+	defer k.mu.Unlock()
 	if r.Method != http.MethodPost {
 		err := fmt.Sprintf("Wrong HTTP request. You need to send POST request.")
 		log.Printf(err)
