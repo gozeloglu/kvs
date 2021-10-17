@@ -1,7 +1,7 @@
 # kvs [![Version](https://img.shields.io/badge/Version-v0.2.3-yellowgreen)](https://github.com/gozeloglu/kvs/releases/tag/v0.2.3)  [![API Doc](https://img.shields.io/badge/-API%20Doc-orange)](https://github.com/gozeloglu/kvs/wiki/API-Documentation)  [![LICENSE](https://img.shields.io/badge/license-MIT-green)](https://github.com/gozeloglu/kvs/blob/main/LICENSE)
 
 kvs is an in-memory key-value storage written in Go. It has 2 different usage. It can be used as a package by importing
-it to your code or as a server by creating an HTTP server. kvs stores persistent data in local machine's `tmp/kvs`
+it to your code or as a server by creating an HTTP server. kvs stores persistent data in local machine's `/tmp/kvs`
 directory. The file extension is `.kvs`. For example, if you create a database named as **user**, it would be stored in
 a file name as `users.kvs`. It loads the data from file into memory if the database is already exists. Also, kvs
 supports saving data from memory to disk in a given time interval periodically. You can specify the time interval while
@@ -18,7 +18,7 @@ go get github.com/gozeloglu/kvs
 ## Package Usage
 
 Firstly, you need to create a database by calling `kvs.Open()`. It creates a new database if not exists or loads the
-data from existing database if it is exists. If you want to use kvs as a package, you don't need to specify `addr` as a
+data from existing database if it exists. If you want to use kvs as a package, you don't need to specify `addr` as a
 first parameter. As a third parameter, you pass time interval to save data to database periodically.
 
 ```go
