@@ -1,5 +1,11 @@
-# kvs [![Version](https://img.shields.io/badge/Version-v0.2.3-yellowgreen)](https://github.com/gozeloglu/kvs/releases/tag/v0.2.3)  [![API Doc](https://img.shields.io/badge/-API%20Doc-orange)](https://github.com/gozeloglu/kvs/wiki/API-Documentation)  ![LICENSE](https://img.shields.io/badge/license-MIT-green) 
+# kvs [![Version](https://img.shields.io/badge/Version-v0.2.3-yellowgreen)](https://github.com/gozeloglu/kvs/releases/tag/v0.2.3)  [![API Doc](https://img.shields.io/badge/-API%20Doc-orange)](https://github.com/gozeloglu/kvs/wiki/API-Documentation)  [![LICENSE](https://img.shields.io/badge/license-MIT-green)](https://github.com/gozeloglu/kvs/blob/main/LICENSE)
 
+kvs is an in-memory key-value storage written in Go. It has 2 different usage. It can be used as a package by importing
+it to your code or as a server by creating an HTTP server. kvs stores persistent data in local machine's `tmp/kvs`
+directory. The file extension is `.kvs`. For example, if you create a database named as **user**, it would be stored in
+a file name as `users.kvs`. It loads the data from file into memory if the database is already exists. Also, kvs
+supports saving data from memory to disk in a given time interval periodically. You can specify the time interval while
+creating the database. Both keys and values are stored as string. That's why the methods accept only strings.
 
 ## Installation
 
@@ -9,9 +15,41 @@ You can add package to your project with the following command.
 go get github.com/gozeloglu/kvs
 ```
 
-## Example
+## Package Usage
 
-If you want to use in your code as a package, you can call `Get` and `Set` methods directly.
+Firstly, you need to create a database by calling `kvs.Open()`. It creates a new database if not exists or loads the
+data from existing database if it is exists. If you want to use kvs as a package, you don't need to specify `addr` as a
+first parameter. As a third parameter, you pass time interval to save data to database periodically.
+
+```go
+// Creates a "users" database and saves the data from memory to file per 2 minutes.
+db, err := kvs.Open("", "users", 2*time.Minute)  
+```
+
+Then, simply you can call `Set()` and `Get()` methods. `Set()` takes key and value as parameters and adds the key-value
+pair to memory. `Get()` takes key as a parameter and returns the value of the key. Both `Set()` and `Get()` methods
+takes string as parameters.
+
+```go
+// "john" is stored as key with "23" as value in memory.
+db.Set("john", "23")
+
+// Returns "23" to age.
+age := db.Get("john")
+```
+
+If you want to make sure that all data stores in memory would save to disk, you can call `Close()` method. It writes the
+data to disk and closes the database.
+
+```go
+// Writes data in memory to disk
+db.Close()
+```
+
+If you want to see full code, you can take a
+look [/example/pkg/main.go](https://github.com/gozeloglu/kvs/blob/main/example/pkg/main.go).
+
+## Package Example
 
 ```go
 package main
@@ -32,11 +70,11 @@ func main() {
 	db.Set("john", "23")
 	db.Set("jack", "43")
 
-	john := db.Get("john")
-	fmt.Println(john)
+	johnAge := db.Get("john")
+	fmt.Println(johnAge)
 
-	jack := db.Get("jack")
-	fmt.Println(jack)
+	jackAge := db.Get("jack")
+	fmt.Println(jackAge)
 
 	err = db.Close() // Call while closing the database.
 	if err != nil {
@@ -45,6 +83,27 @@ func main() {
 }
 
 ```
+
+## Server Usage
+
+Server usage is so simple and short. You would call extra method, `Open()`, to start server. Default port is **1234**
+for kvs server. But, you can override it and specify another port number.
+
+```go
+// Server runs on localhost:1234
+db, _ := kvs.Create(":1234", "users", 2*time.Minute)
+
+// The server is started
+db.Open()
+```
+
+If you want to see full code, you can take a
+look [/example/server/main.go](https://github.com/gozeloglu/kvs/blob/main/example/server/main.go). You can run this code
+directly without any configurations.
+
+You can find the **API Documentation** from  [**here**](https://github.com/gozeloglu/kvs/wiki/API-Documentation) .
+
+## Server Example
 
 If you want to use as a server, you can just call two different functions. It creates endpoints for you.
 
@@ -65,7 +124,6 @@ func main() {
 	log.Printf("DB Created.")
 	db.Open()
 }
-
 ```
 
 ## LICENSE
