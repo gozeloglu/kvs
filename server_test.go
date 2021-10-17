@@ -29,10 +29,6 @@ func TestServerSet(t *testing.T) {
 	}
 
 	body := `{"data": [{"key": "foo","value": "bar"}]}`
-	//j, err := json.Marshal(body)
-	//if err != nil {
-	//	t.Fatalf(err.Error())
-	//}
 	req, err := http.NewRequest(http.MethodPost, "/set", strings.NewReader(body))
 	if err != nil {
 		t.Fatalf(err.Error())
@@ -59,6 +55,45 @@ func TestServerSet(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 	t.Logf("Removed temp directory and file.")
+}
+
+func TestServerSetWrongMethod(t *testing.T) {
+	tmpFile, _ := os.CreateTemp(t.TempDir(), "setTestWrongMethod.kvs")
+	t.Logf(tmpFile.Name())
+
+	stat, err := tmpFile.Stat()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	kvs := Kvs{
+		name:     stat.Name(),
+		dir:      tmpFile.Name(),
+		dbFile:   tmpFile,
+		kv:       make(map[string]string),
+		mu:       sync.Mutex{},
+		Addr:     "",
+		duration: 10 * time.Minute,
+	}
+
+	body := `{"data": [{"key": "foo","value": "bar"}]}`
+	req, err := http.NewRequest(http.MethodGet, "/set", strings.NewReader(body))
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	t.Logf(req.Method)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(kvs.set)
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusBadRequest)
+	}
+
+	tmpFile.Close()
+	os.RemoveAll(tmpFile.Name())
 }
 
 func TestServerGet(t *testing.T) {
@@ -94,6 +129,32 @@ func TestServerGet(t *testing.T) {
 	if rr.Header().Get(headerContent) != "application/json" {
 		t.Errorf("handler returned wrong header content: got %s want %s",
 			rr.Header().Get(headerContent), "application/json")
+	}
+}
+
+func TestServerGetWrongMethod(t *testing.T) {
+	kvs := Kvs{
+		name:     "",
+		dir:      "",
+		dbFile:   nil,
+		kv:       nil,
+		mu:       sync.Mutex{},
+		Addr:     "",
+		duration: 10 * time.Minute,
+	}
+	req, err := http.NewRequest(http.MethodPost, "/get/foo", nil)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(kvs.get)
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
 	}
 }
 
@@ -137,6 +198,46 @@ func TestServerSave(t *testing.T) {
 	if rr.Header().Get(headerContent) != "application/json" {
 		t.Errorf("handler returned wrong header content: got %s want %s",
 			rr.Header().Get(headerContent), "application/json")
+	}
+
+	tmpFile.Close()
+	err = os.RemoveAll(tmpFile.Name())
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	t.Logf("Removed temp directory and file.")
+}
+
+func TestServerSaveWrongMethod(t *testing.T) {
+	tmpFile, _ := os.CreateTemp(t.TempDir(), "saveTestWrongMethod.kvs")
+	t.Logf(tmpFile.Name())
+	stat, err := tmpFile.Stat()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	kvs := Kvs{
+		name:     stat.Name(),
+		dir:      tmpFile.Name(),
+		dbFile:   tmpFile,
+		kv:       make(map[string]string),
+		mu:       sync.Mutex{},
+		Addr:     "",
+		duration: 10 * time.Minute,
+	}
+	req, err := http.NewRequest(http.MethodGet, "/save", nil)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(kvs.save)
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
 	}
 
 	tmpFile.Close()
