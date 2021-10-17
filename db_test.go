@@ -146,9 +146,9 @@ func TestTimeInterval(t *testing.T) {
 	t.Logf("db created.")
 
 	db.Set("foo", "bar")
-	t.Logf("Wait 3 seconds...")
-	time.Sleep(3 * time.Second)
+	t.Logf("Wait 4 seconds...")
 	db.Close()
+	time.Sleep(4 * time.Second)
 
 	db2, err := Create("", t.Name(), 1*time.Minute)
 	if err != nil {
