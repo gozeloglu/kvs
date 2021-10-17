@@ -136,3 +136,37 @@ func TestLoad(t *testing.T) {
 	t.Logf("Removed test file.")
 
 }
+
+func TestTimeInterval(t *testing.T) {
+	want := "bar"
+	db, err := Create("", t.Name(), 3*time.Second)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	t.Logf("db created.")
+
+	db.Set("foo", "bar")
+	t.Logf("Wait 3 seconds...")
+	time.Sleep(3 * time.Second)
+	db.Close()
+
+	db2, err := Create("", t.Name(), 1*time.Minute)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	db2.mu.Lock()
+	val := db2.Get("foo")
+	db2.mu.Unlock()
+
+	if val != want {
+		t.Errorf("Wrong value, want %s got %s", want, val)
+	}
+
+	db2.Close()
+	err = os.RemoveAll(db2.dir)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	t.Logf("db removed.")
+}
