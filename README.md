@@ -128,7 +128,7 @@ func main() {
 
 ## How to store data in file?
 
-Key-value pairs store in files with `.kvs` extension. Data format is simple. There is **=** between key and value. 
+Key-value pairs store in files with `.kvs` extension. Data format is simple. There is **=** between key and value.
 
 ```
 foo=bar
@@ -137,6 +137,10 @@ fizz=buzz
 ```
 
 This is a sample data file. If you want to save data manually,>
+
+## NOTE
+
+kvs is still under development stage, and it is created for experimental purposes. 
 
 ## LICENSE
 
