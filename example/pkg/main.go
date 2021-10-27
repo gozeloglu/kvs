@@ -31,7 +31,13 @@ func main() {
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
-	fmt.Printf("John's new age is %s", newAge)
+	fmt.Printf("John's new age is %s\n", newAge)
+
+	newAge, err = db.IncrBy("john", 3)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+	fmt.Printf("John's new age is %s\n", newAge)
 
 	err = db.Close()
 	if err != nil {

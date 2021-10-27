@@ -15,6 +15,18 @@ func (k *Kvs) Incr(key string) (string, error) {
 	return k.kv[key], nil
 }
 
+// IncrBy increments the value by given value. If non-integer value is being
+// tried to increment,
+func (k *Kvs) IncrBy(key string, val int) (string, error) {
+	v := k.kv[key]
+	valInt, err := strconv.Atoi(v)
+	if err != nil {
+		return "", err
+	}
+	k.kv[key] = convStr(valInt + val)
+	return k.kv[key], err
+}
+
 // convStr converts integer to string.
 func convStr(i int) string {
 	return strconv.Itoa(i)

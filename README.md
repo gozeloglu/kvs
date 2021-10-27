@@ -87,6 +87,12 @@ func main() {
 	}
 	fmt.Printf("John's new age is %s", newAge)
 
+	newAge, err = db.IncrBy("john", 3)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+	fmt.Printf("John's new age is %s\n", newAge)
+
 	err = db.Close() // Call while closing the database.
 	if err != nil {
 		log.Fatalf(err.Error())
