@@ -39,6 +39,12 @@ func main() {
 	}
 	fmt.Printf("John's new age is %s\n", newAge)
 
+	exist := db.Exists("john")
+	fmt.Println(exist)
+
+	exist = db.Exists("jack")
+	fmt.Println(exist)
+
 	err = db.Close()
 	if err != nil {
 		log.Fatalf(err.Error())
