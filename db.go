@@ -86,28 +86,27 @@ func open(name string, addr string, duration time.Duration) (*Kvs, error) {
 			}
 		}()
 		return k, nil
-	} else {
-		k, err := openAndLoad(name, addr, duration)
-		if err != nil {
-			return nil, err
-		}
+	}
+	k, err := openAndLoad(name, addr, duration)
+	if err != nil {
+		return nil, err
+	}
 
-		ticker := time.NewTicker(duration)
-		go func() {
-			for {
-				select {
-				case t := <-ticker.C:
-					err := k.write()
-					if err != nil {
-						log.Println("Writing file failed at", t.Local())
-					} else {
-						log.Println("Data saved on the file at", t.Local())
-					}
+	ticker := time.NewTicker(duration)
+	go func() {
+		for {
+			select {
+			case t := <-ticker.C:
+				err := k.write()
+				if err != nil {
+					log.Println("Writing file failed at", t.Local())
+				} else {
+					log.Println("Data saved on the file at", t.Local())
 				}
 			}
-		}()
-		return k, nil
-	}
+		}
+	}()
+	return k, nil
 }
 
 // openAndLoad opens the named database file for file operations. Also, loads
