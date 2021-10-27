@@ -27,6 +27,12 @@ func main() {
 	jack = db.Get("jack")
 	fmt.Println("Jack:", jack)
 
+	newAge, err := db.Incr("john")
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+	fmt.Printf("John's new age is %s", newAge)
+
 	err = db.Close()
 	if err != nil {
 		log.Fatalf(err.Error())
