@@ -20,7 +20,12 @@ func main() {
 	fmt.Println("John:", john)
 
 	jack := db.Get("jack")
-	fmt.Println("Jack", jack)
+	fmt.Println("Jack:", jack)
+
+	db.Del("jack")
+
+	jack = db.Get("jack")
+	fmt.Println("Jack:", jack)
 
 	err = db.Close()
 	if err != nil {

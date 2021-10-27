@@ -76,6 +76,11 @@ func main() {
 	jackAge := db.Get("jack")
 	fmt.Println(jackAge)
 
+	db.Del("jack")
+
+	jack = db.Get("jack")
+	fmt.Println("Jack:", jack)
+
 	err = db.Close() // Call while closing the database.
 	if err != nil {
 		log.Fatalf(err.Error())
@@ -136,11 +141,11 @@ john=12
 fizz=buzz
 ```
 
-This is a sample data file. If you want to save data manually,>
+This is a sample data file.
 
 ## NOTE
 
-kvs is still under development stage, and it is created for experimental purposes. 
+kvs is still under development stage, and it is created for experimental purposes.
 
 ## LICENSE
 
