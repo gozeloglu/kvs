@@ -99,6 +99,12 @@ func main() {
 	exist = db.Exists("jack")
 	fmt.Println(exist)
 
+	ok, err := db.Rename("john", "john john")
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+	fmt.Printf("key name changed: %v1\n", ok)
+	
 	err = db.Close() // Call while closing the database.
 	if err != nil {
 		log.Fatalf(err.Error())
