@@ -104,7 +104,12 @@ func main() {
 		log.Fatalf(err.Error())
 	}
 	fmt.Printf("key name changed: %v1\n", ok)
-	
+
+	keys := db.Keys()
+	for _, k := range keys {
+		fmt.Println(k)
+	}
+
 	err = db.Close() // Call while closing the database.
 	if err != nil {
 		log.Fatalf(err.Error())
