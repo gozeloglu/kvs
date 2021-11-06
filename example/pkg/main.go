@@ -45,6 +45,12 @@ func main() {
 	}
 	fmt.Printf("John's decremented age is: %s\n", decrAge)
 
+	decrAge, err = db.DecrBy("john", 3)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+	fmt.Printf("John's decremented age is: %s\n", decrAge)
+
 	exist := db.Exists("john")
 	fmt.Println(exist)
 

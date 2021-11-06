@@ -16,7 +16,7 @@ func (k *Kvs) Incr(key string) (string, error) {
 }
 
 // IncrBy increments the value by given value. If non-integer value is being
-// tried to increment,
+// tried to increment, it returns error.
 func (k *Kvs) IncrBy(key string, val int) (string, error) {
 	v := k.kv[key]
 	valInt, err := strconv.Atoi(v)
