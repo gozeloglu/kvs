@@ -90,12 +90,10 @@ func (k *Kvs) set(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("Body unmarshalled to KeyVal struct type.")
 
-	k.mu.Lock()
 	for i := 0; i < len(keyVal.Data); i++ {
 		key, val := keyVal.Data[i].Key, keyVal.Data[i].Value
 		k.Set(key, val)
 	}
-	k.mu.Unlock()
 	log.Printf("Save key-value pair to memory.")
 
 	data := Response{
@@ -138,10 +136,8 @@ func (k *Kvs) get(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("URL parsed.")
 
-	k.mu.Lock()
 	key := u[len(u)-1]
 	value := k.Get(key)
-	k.mu.Unlock()
 
 	resp := Response{
 		Key:    key,

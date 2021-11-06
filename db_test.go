@@ -155,9 +155,7 @@ func TestTimeInterval(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 
-	db2.mu.Lock()
 	val := db2.Get("foo")
-	db2.mu.Unlock()
 
 	if val != want {
 		t.Errorf("Wrong value, want %s got %s", want, val)
