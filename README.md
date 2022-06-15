@@ -1,3 +1,7 @@
+# Archived Project
+
+This project is archived. You can fork and develop it. It was an experimental project. Maybe I'll start another database project in the future.
+
 # kvs [![Go Reference](https://pkg.go.dev/badge/github.com/gozeloglu/kvs.svg)](https://pkg.go.dev/github.com/gozeloglu/kvs) [![Go Report Card](https://goreportcard.com/badge/github.com/gozeloglu/kvs)](https://goreportcard.com/report/github.com/gozeloglu/kvs) ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/gozeloglu/kvs) ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/gozeloglu/kvs) [![API Doc](https://img.shields.io/badge/-API%20Doc-orange)](https://github.com/gozeloglu/kvs/wiki/API-Documentation)  [![LICENSE](https://img.shields.io/badge/license-MIT-green)](https://github.com/gozeloglu/kvs/blob/main/LICENSE)
 
 kvs is an in-memory key-value storage written in Go. It has 2 different usage. It can be used as a package by importing
